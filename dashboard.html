@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>HostBot — Bot Hosting</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
+  --border:#30363d;--border2:#484f58;
+  --text:#e6edf3;--text2:#8b949e;--text3:#656d76;
+  --accent:#58a6ff;--accent2:#1f6feb;
+  --green:#3fb950;--green2:#238636;
+  --red:#f85149;--yellow:#d29922;--purple:#bc8cff;--orange:#f0883e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* ════════════════ PAGES ════════════════ */
+.page{display:none;min-height:100vh;}
+.page.active{display:flex;flex-direction:column;}
+
+/* ════════════════ NAV ════════════════ */
+.topnav{background:rgba(13,17,23,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;}
+.topnav-logo{font-weight:700;font-size:1rem;color:var(--text);display:flex;align-items:center;gap:8px;}
+.topnav-links{display:flex;align-items:center;gap:4px;margin-left:auto;}
+.topnav-links a,.topnav-links button{color:var(--text2);font-size:.875rem;padding:6px 12px;border-radius:6px;border:none;background:transparent;cursor:pointer;transition:.15s;}
+.topnav-links a:hover,.topnav-links button:hover{color:var(--text);text-decoration:none;}
+
+/* ════════════════ HERO ════════════════ */
+.hero{padding:80px 24px 64px;text-align:center;max-width:760px;margin:0 auto;}
+.hero h1{font-size:3rem;font-weight:800;line-height:1.15;margin-bottom:16px;background:linear-gradient(135deg,#e6edf3 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:1.15rem;color:var(--text2);margin-bottom:36px;line-height:1.7;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-primary-hl{background:var(--accent2);border:1px solid var(--accent);color:#fff;padding:12px 28px;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary-hl:hover{background:var(--accent);color:#0d1117;}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:12px 28px;border-radius:8px;font-size:.95rem;cursor:pointer;transition:.2s;}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text);}
+
+/* ════════════════ FEATURES ════════════════ */
+.features{padding:64px 24px;max-width:1100px;margin:0 auto;}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:40px;}
+.feat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;transition:.2s;}
+.feat-card:hover{border-color:var(--border2);}
+.feat-icon{font-size:1.8rem;margin-bottom:12px;}
+.feat-card h3{font-size:1rem;font-weight:600;margin-bottom:6px;}
+.feat-card p{color:var(--text2);font-size:.875rem;line-height:1.6;}
+
+/* ════════════════ PRICING ════════════════ */
+.pricing{padding:64px 24px;text-align:center;max-width:480px;margin:0 auto;}
+.price-card{background:var(--bg2);border:2px solid var(--accent);border-radius:16px;padding:40px 36px;position:relative;overflow:hidden;}
+.price-card::before{content:'MOST POPULAR';position:absolute;top:16px;right:-28px;background:var(--accent);color:#0d1117;font-size:.65rem;font-weight:700;padding:4px 40px;transform:rotate(45deg);}
+.price-amount{font-size:3.5rem;font-weight:800;color:var(--accent);}
+.price-period{color:var(--text2);font-size:.9rem;}
+.price-features{list-style:none;margin:24px 0;text-align:left;}
+.price-features li{padding:8px 0;border-bottom:1px solid var(--border);color:var(--text2);display:flex;align-items:center;gap:10px;font-size:.9rem;}
+.price-features li i{color:var(--green);}
+
+/* ════════════════ FOOTER ════════════════ */
+.landing-footer{padding:40px 24px;text-align:center;color:var(--text3);font-size:.83rem;border-top:1px solid var(--border);margin-top:auto;}
+
+/* ════════════════ PAYMENT PAGE ════════════════ */
+.pay-wrap{max-width:520px;margin:0 auto;padding:40px 24px 80px;}
+.pay-step-bar{display:flex;gap:0;margin-bottom:36px;}
+.pay-step{flex:1;text-align:center;padding:10px 0;font-size:.78rem;font-weight:600;color:var(--text3);border-bottom:2px solid var(--border);transition:.3s;}
+.pay-step.active{color:var(--accent);border-color:var(--accent);}
+.pay-step.done{color:var(--green);border-color:var(--green);}
+.card-dark{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;}
+.coin-btn{background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:16px 20px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:12px;width:100%;}
+.coin-btn:hover,.coin-btn.selected{border-color:var(--accent);background:rgba(88,166,255,.08);}
+.coin-btn .coin-logo{font-size:2rem;}
+.coin-btn .coin-info{text-align:left;}
+.coin-btn .coin-name{font-weight:700;font-size:1rem;}
+.coin-btn .coin-sub{color:var(--text2);font-size:.8rem;}
+.qr-wrap{display:flex;justify-content:center;margin:20px 0;}
+.qr-wrap img{border-radius:12px;border:6px solid #fff;width:180px;height:180px;}
+.addr-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:'Courier New',monospace;font-size:.78rem;word-break:break-all;cursor:pointer;transition:.2s;user-select:all;}
+.addr-box:hover{border-color:var(--accent);}
+.amount-chip{background:rgba(88,166,255,.12);border:1px solid var(--accent);border-radius:8px;padding:10px 16px;text-align:center;margin:12px 0;}
+.amount-chip .amt{font-size:1.5rem;font-weight:700;color:var(--accent);}
+.amount-chip .sub{color:var(--text2);font-size:.8rem;}
+.poll-status{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:8px;background:var(--bg3);font-size:.88rem;}
+.poll-dot{width:10px;height:10px;border-radius:50%;background:var(--yellow);flex-shrink:0;animation:pulse 1.2s infinite;}
+.poll-dot.ok{background:var(--green);animation:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* ════════════════ LOGIN PAGE ════════════════ */
+.login-wrap{max-width:440px;margin:60px auto;padding:0 24px 80px;}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;}
+.login-logo{text-align:center;font-size:3rem;margin-bottom:12px;}
+.login-card h2{text-align:center;font-weight:700;margin-bottom:4px;}
+.login-card .sub{text-align:center;color:var(--text2);font-size:.875rem;margin-bottom:28px;}
+.form-dark{background:var(--bg3)!important;border:1px solid var(--border)!important;color:var(--text)!important;border-radius:8px;padding:10px 14px;width:100%;font-size:.9rem;}
+.form-dark::placeholder{color:var(--text3);}
+.form-dark:focus{outline:none!important;border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(88,166,255,.15)!important;}
+.btn-full{width:100%;padding:11px;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;transition:.2s;border:none;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-accent{background:var(--accent2);color:#fff;}
+.btn-accent:hover{background:var(--accent);}
+.btn-green{background:var(--green2);color:#fff;}
+.btn-green:hover{background:var(--green);}
+.err-msg{color:var(--red);font-size:.83rem;margin-top:10px;display:none;}
+.code-input{text-align:center;font-size:2rem;letter-spacing:.4em;font-family:'Courier New',monospace;}
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0;}
+
+/* ════════════════ APP LAYOUT ════════════════ */
+#app-page{display:none;}
+#app-page.active{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.app-body{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sb-logo{padding:16px;border-bottom:1px solid var(--border);}
+.sb-logo h2{font-size:1rem;font-weight:700;}
+.sb-logo small{color:var(--text2);font-size:.72rem;}
+.sb-sect{padding:10px 8px 2px;color:var(--text3);font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;cursor:pointer;color:var(--text2);transition:.12s;margin:1px 6px;font-size:.875rem;}
+.sb-item:hover{background:var(--bg3);color:var(--text);}
+.sb-item.active{background:rgba(88,166,255,.12);color:var(--accent);}
+.sb-item i{width:16px;text-align:center;}
+.sb-footer{margin-top:auto;padding:12px;border-top:1px solid var(--border);}
+.user-pill{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;background:var(--bg3);}
+.avatar{width:30px;height:30px;background:var(--accent2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;}
+.page-ttl{font-size:1rem;font-weight:600;}
+.content{padding:20px;flex:1;}
+
+/* ════════════════ CARDS & TABLES ════════════════ */
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;}
+.stat-label{color:var(--text3);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:600;}
+.stat-val{font-size:1.7rem;font-weight:700;}
+.stat-sub{color:var(--text2);font-size:.78rem;margin-top:2px;}
+.prog-bg{background:var(--bg3);border-radius:3px;height:5px;margin-top:8px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:.4s;}
+.g{background:var(--green)}.y{background:var(--yellow)}.r{background:var(--red)}
+.tbl{width:100%;border-collapse:collapse;font-size:.84rem;}
+.tbl th{color:var(--text3);font-weight:600;padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;}
+.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.018);}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.badge{padding:2px 9px;border-radius:10px;font-size:.74rem;font-weight:600;white-space:nowrap;}
+.b-g{background:rgba(63,185,80,.14);color:var(--green);}
+.b-r{background:rgba(248,81,73,.14);color:var(--red);}
+.b-y{background:rgba(210,153,34,.14);color:var(--yellow);}
+.b-b{background:rgba(88,166,255,.14);color:var(--accent);}
+.b-p{background:rgba(188,140,255,.14);color:var(--purple);}
+.b-o{background:rgba(240,136,62,.14);color:var(--orange);}
+.btn-xs{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:3px 10px;border-radius:5px;font-size:.78rem;cursor:pointer;transition:.12s;}
+.btn-xs:hover{border-color:var(--accent);color:var(--accent);}
+.btn-xs-g{background:rgba(63,185,80,.1);border:1px solid var(--green);color:var(--green);padding:3px 10px;border-radius:5px;font-size:.78rem;cursor:pointer;}
+.btn-xs-r{background:rgba(248,81,73,.1);border:1px solid var(--red);color:var(--red);padding:3px 10px;border-radius:5px;font-size:.78rem;cursor:pointer;}
+
+/* ════════════════ LOG BOX ════════════════ */
+.log-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:.74rem;color:var(--green);height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
+
+/* ════════════════ SCREENSHOT / CONTROL ════════════════ */
+#ss-wrap{position:relative;display:inline-block;max-width:100%;line-height:0;}
+#ss-img{max-width:100%;border-radius:8px;border:1px solid var(--border);cursor:crosshair;display:block;}
+.click-ripple{position:absolute;width:22px;height:22px;border-radius:50%;border:3px solid var(--accent);pointer-events:none;transform:translate(-50%,-50%);animation:ripple .5s ease-out forwards;}
+@keyframes ripple{to{opacity:0;width:44px;height:44px;}}
+
+/* ════════════════ MODALS ════════════════ */
+.modal-dark .modal-content{background:var(--bg2);border:1px solid var(--border);color:var(--text);}
+.modal-dark .modal-header,.modal-dark .modal-footer{border-color:var(--border);}
+.modal-dark .btn-close{filter:invert(1);}
+
+/* ════════════════ TOAST ════════════════ */
+#tc{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+.t-item{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:11px 16px;min-width:240px;display:flex;align-items:center;gap:9px;animation:tin .18s ease;font-size:.875rem;}
+.t-item.ok{border-color:var(--green);}
+.t-item.err{border-color:var(--red);}
+@keyframes tin{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ════════════════ SETUP BANNER ════════════════ */
+#setup-banner{background:rgba(210,153,34,.1);border:1px solid var(--yellow);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:.84rem;color:var(--yellow);display:none;align-items:center;gap:10px;}
+
+/* ════════════════ MISC ════════════════ */
+.section-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.section-hd h5{font-weight:600;font-size:.95rem;}
+.tab-cnt{display:none;}
+.tab-cnt.active{display:block;}
+@media(max-width:768px){.sidebar{display:none;}.hero h1{font-size:2rem;}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LANDING PAGE  #/
+═══════════════════════════════════════════════════════════ -->
+<div id="page-landing" class="page">
+  <nav class="topnav">
+    <div class="topnav-logo">🤖 HostBot</div>
+    <div class="topnav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="https://discord.gg/h5DGaCvezh" target="_blank"><i class="bi bi-discord"></i> Discord</a>
+      <button onclick="goto('login')" style="border:1px solid var(--border2);border-radius:6px;">Sign In</button>
+      <button onclick="goto('pay')" class="btn-primary-hl" style="padding:7px 16px;font-size:.875rem;">Buy Access →</button>
+    </div>
+  </nav>
+
+  <div class="hero" id="home">
+    <h1>Host Your Discord Bots<br/>24/7, Zero Hassle</h1>
+    <p>Upload your Python bot, pay with crypto, and it runs forever.<br/>Live logs, remote control, process management — all in one place.</p>
+    <div class="hero-btns">
+      <button onclick="goto('pay')" class="btn-primary-hl"><i class="bi bi-lightning-fill"></i> Get Access — $2/week</button>
+      <button onclick="goto('login')" class="btn-ghost"><i class="bi bi-box-arrow-in-right"></i> Sign In</button>
+    </div>
+  </div>
+
+  <div class="features" id="features">
+    <div style="text-align:center;margin-bottom:8px;"><span style="color:var(--accent);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">Features</span></div>
+    <h2 style="text-align:center;font-size:1.9rem;font-weight:700;">Everything you need to host bots</h2>
+    <div class="features-grid">
+      <div class="feat-card"><div class="feat-icon">🚀</div><h3>Upload & Run</h3><p>Drag-drop your .py file. The bot runs instantly with live stdout logs piped back to you.</p></div>
+      <div class="feat-card"><div class="feat-icon">🛡️</div><h3>Security Scanner</h3><p>Every file is scanned for keyloggers, ransomware, miners, and exfil tools before it's ever executed.</p></div>
+      <div class="feat-card"><div class="feat-icon">💻</div><h3>Remote Control</h3><p>Admin live screenshot + click-anywhere control. Type text, press keys, scroll — all from the browser.</p></div>
+      <div class="feat-card"><div class="feat-icon">📊</div><h3>Live Dashboard</h3><p>Real-time CPU, RAM, disk, network stats. Start, stop, restart any process with one click.</p></div>
+      <div class="feat-card"><div class="feat-icon">₿</div><h3>Crypto Payments</h3><p>Pay with Bitcoin or Litecoin. Access granted automatically within 2 minutes of on-chain confirmation.</p></div>
+      <div class="feat-card"><div class="feat-icon">🎫</div><h3>Private Tickets</h3><p>Spin up a 3-minute private Discord channel to run bot commands without cluttering public channels.</p></div>
+    </div>
+  </div>
+
+  <div class="pricing" id="pricing">
+    <div style="margin-bottom:8px;"><span style="color:var(--accent);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">Pricing</span></div>
+    <h2 style="font-size:1.9rem;font-weight:700;margin-bottom:32px;">Simple, affordable pricing</h2>
+    <div class="price-card">
+      <div class="price-amount">$2</div>
+      <div class="price-period">per week · 1 hosting slot</div>
+      <ul class="price-features">
+        <li><i class="bi bi-check-circle-fill"></i>1 Python bot running 24/7</li>
+        <li><i class="bi bi-check-circle-fill"></i>Live logs & process control</li>
+        <li><i class="bi bi-check-circle-fill"></i>File security scanner</li>
+        <li><i class="bi bi-check-circle-fill"></i>Web dashboard access</li>
+        <li><i class="bi bi-check-circle-fill"></i>Private ticket support</li>
+        <li><i class="bi bi-check-circle-fill"></i>Pay with BTC or LTC</li>
+      </ul>
+      <button onclick="goto('pay')" class="btn-primary-hl" style="width:100%;justify-content:center;"><i class="bi bi-lightning-fill"></i> Buy with Crypto</button>
+    </div>
+  </div>
+
+  <div class="landing-footer">
+    <div style="margin-bottom:8px;">🤖 <strong>HostBot</strong> — Discord bot hosting made easy</div>
+    <div><a href="https://discord.gg/h5DGaCvezh" target="_blank"><i class="bi bi-discord"></i> Join our Discord</a> &nbsp;·&nbsp; © 2025 HostBot</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAYMENT PAGE  #/pay
+═══════════════════════════════════════════════════════════ -->
+<div id="page-pay" class="page">
+  <nav class="topnav">
+    <div class="topnav-logo">🤖 HostBot</div>
+    <div class="topnav-links">
+      <button onclick="goto('landing')" class="btn-ghost" style="padding:6px 12px;font-size:.875rem;border-radius:6px;">← Back</button>
+    </div>
+  </nav>
+  <div class="pay-wrap">
+    <h2 style="font-weight:700;margin-bottom:6px;">Get Access</h2>
+    <p style="color:var(--text2);font-size:.875rem;margin-bottom:28px;">Pay with crypto — access granted automatically on confirmation.</p>
+
+    <div class="pay-step-bar">
+      <div class="pay-step active" id="ps1">1 · Choose coin</div>
+      <div class="pay-step" id="ps2">2 · Send payment</div>
+      <div class="pay-step" id="ps3">3 · Confirmed!</div>
+    </div>
+
+    <!-- Step 1: choose coin -->
+    <div id="pay-s1">
+      <div class="card-dark">
+        <p style="color:var(--text2);font-size:.875rem;margin-bottom:16px;">Select your payment method:</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="coin-btn" id="coin-btc" onclick="selectCoin('BTC')">
+            <span class="coin-logo">₿</span>
+            <div class="coin-info">
+              <div class="coin-name">Bitcoin (BTC)</div>
+              <div class="coin-sub">Most widely supported</div>
+            </div>
+          </button>
+          <button class="coin-btn" id="coin-ltc" onclick="selectCoin('LTC')">
+            <span class="coin-logo">Ł</span>
+            <div class="coin-info">
+              <div class="coin-name">Litecoin (LTC)</div>
+              <div class="coin-sub">Faster &amp; lower fees</div>
+            </div>
+          </button>
+        </div>
+        <div id="pay-coin-err" class="err-msg" style="display:none;margin-top:12px;"></div>
+        <button class="btn-full btn-accent mt-4" onclick="initPayment()">
+          <span id="init-sp" class="spinner-border spinner-border-sm d-none"></span>
+          Continue →
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: send payment -->
+    <div id="pay-s2" style="display:none;">
+      <div class="card-dark">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div>
+            <div style="font-weight:700;font-size:1rem;" id="pay-coin-title">Bitcoin Payment</div>
+            <div style="color:var(--text2);font-size:.8rem;">Expires in 2 hours · auto-detected on-chain</div>
+          </div>
+          <span id="pay-coin-badge" class="badge b-y">BTC</span>
+        </div>
+        <div class="qr-wrap"><img id="pay-qr" src="" alt="QR" width="180" height="180"/></div>
+        <p style="color:var(--text2);font-size:.78rem;text-align:center;margin-bottom:10px;">Scan with your wallet or copy the address below</p>
+        <div class="addr-box" id="pay-addr" onclick="copyAddr()" title="Click to copy">Loading…</div>
+        <div style="text-align:right;font-size:.72rem;color:var(--text3);margin-top:4px;">click address to copy</div>
+        <div class="amount-chip mt-3">
+          <div class="amt" id="pay-amount-coin">–</div>
+          <div class="sub" id="pay-amount-usd">≈ $0.00 USD · rate updated at payment creation</div>
+        </div>
+        <div style="background:rgba(248,81,73,.08);border:1px solid var(--red);border-radius:8px;padding:10px 14px;font-size:.8rem;color:var(--red);margin:14px 0;">
+          ⚠️ Send <strong>at least</strong> the exact amount shown. Sending less will <strong>not</strong> be detected.
+        </div>
+        <div class="poll-status" id="poll-status">
+          <div class="poll-dot" id="poll-dot"></div>
+          <span id="poll-label">Waiting for payment… (checked every 2 minutes by the bot)</span>
+        </div>
+        <div id="pay2-err" class="err-msg" style="display:none;margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <!-- Step 3: confirmed -->
+    <div id="pay-s3" style="display:none;">
+      <div class="card-dark" style="text-align:center;">
+        <div style="font-size:4rem;margin-bottom:16px;">✅</div>
+        <h3 style="font-weight:700;margin-bottom:8px;">Payment Confirmed!</h3>
+        <p style="color:var(--text2);font-size:.9rem;margin-bottom:24px;">Your transaction was detected on-chain. Now sign in with Discord to activate your access.</p>
+        <div style="background:var(--bg3);border-radius:8px;padding:12px 16px;font-size:.8rem;color:var(--text2);margin-bottom:20px;font-family:monospace;word-break:break-all;" id="pay-txhash">TX: –</div>
+        <button class="btn-full btn-accent" onclick="goto('login')">Sign In with Discord →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN PAGE  #/login
+═══════════════════════════════════════════════════════════ -->
+<div id="page-login" class="page">
+  <nav class="topnav">
+    <div class="topnav-logo">🤖 HostBot</div>
+    <div class="topnav-links">
+      <button onclick="goto('landing')" class="btn-ghost" style="padding:6px 12px;font-size:.875rem;border-radius:6px;">← Home</button>
+    </div>
+  </nav>
+  <div class="login-wrap">
+
+    <!-- Step A: enter Discord ID -->
+    <div id="login-a" class="login-card">
+      <div class="login-logo">🔐</div>
+      <h2>Sign In</h2>
+      <p class="sub">Enter your Discord username or user ID.<br/>The bot will send you a private code.</p>
+      <input id="login-discord-id" class="form-dark" placeholder="Username or ID (e.g. 1234567890123456789)" style="margin-bottom:14px;"/>
+      <button class="btn-full btn-accent" onclick="requestCode()">
+        <span id="rc-sp" class="spinner-border spinner-border-sm d-none"></span>
+        Send Code →
+      </button>
+      <p id="rc-err" class="err-msg"></p>
+      <hr class="divider"/>
+      <p style="text-align:center;font-size:.82rem;color:var(--text2);">Don't have access yet? <a onclick="goto('pay')" href="#" style="color:var(--accent);">Buy access</a></p>
+      <p style="text-align:center;font-size:.82rem;color:var(--text2);margin-top:6px;"><a href="https://discord.gg/h5DGaCvezh" target="_blank"><i class="bi bi-discord"></i> Join our Discord</a></p>
+    </div>
+
+    <!-- Step B: enter code -->
+    <div id="login-b" class="login-card" style="display:none;">
+      <div class="login-logo">📨</div>
+      <h2>Enter Code</h2>
+      <p class="sub" id="login-b-sub">Check your private Discord channel for a 6-digit code.</p>
+      <input id="login-code" class="form-dark code-input mb-3" placeholder="• • • • • •" maxlength="6"/>
+      <button class="btn-full btn-accent" onclick="verifyCode()">
+        <span id="vc-sp" class="spinner-border spinner-border-sm d-none"></span>
+        Verify →
+      </button>
+      <p id="vc-err" class="err-msg"></p>
+      <hr class="divider"/>
+      <button class="btn-full" style="background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:10px;" onclick="showLoginA()">← Back</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP  (user + admin tabs in one)
+═══════════════════════════════════════════════════════════ -->
+<div id="app-page">
+  <div class="app-body">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sb-logo">
+        <h2>🤖 HostBot</h2>
+        <small id="sb-conn-label">Dashboard</small>
+      </div>
+
+      <div class="sb-sect">My Panel</div>
+      <div class="sb-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="bi bi-speedometer2"></i>Overview</div>
+      <div class="sb-item" data-tab="my-procs" onclick="switchTab('my-procs')"><i class="bi bi-cpu"></i>My Processes</div>
+      <div class="sb-item" data-tab="my-files" onclick="switchTab('my-files')"><i class="bi bi-files"></i>My Files</div>
+
+      <div class="sb-sect admin-only" id="admin-sb-sect" style="display:none;">Admin</div>
+      <div class="sb-item admin-only d-none" data-tab="all-procs" onclick="switchTab('all-procs')"><i class="bi bi-grid-3x3-gap"></i>All Processes</div>
+      <div class="sb-item admin-only d-none" data-tab="control" onclick="switchTab('control')"><i class="bi bi-display"></i>Computer Control</div>
+      <div class="sb-item admin-only d-none" data-tab="transactions" onclick="switchTab('transactions')"><i class="bi bi-credit-card"></i>Transactions</div>
+      <div class="sb-item admin-only d-none" data-tab="users" onclick="switchTab('users')"><i class="bi bi-people"></i>Users</div>
+      <div class="sb-item admin-only d-none" data-tab="scanlog" onclick="switchTab('scanlog')"><i class="bi bi-shield-check"></i>Scan Log</div>
+      <div class="sb-item admin-only d-none" data-tab="settings" onclick="switchTab('settings')"><i class="bi bi-gear"></i>Settings</div>
+
+      <div class="sb-footer">
+        <div class="user-pill">
+          <div class="avatar" id="sb-av">?</div>
+          <div style="overflow:hidden;flex:1;">
+            <div style="font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="sb-uname">…</div>
+            <div style="font-size:.7rem;color:var(--text2);" id="sb-role">User</div>
+          </div>
+        </div>
+        <button class="btn-xs mt-2" style="width:100%;" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Sign out</button>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main">
+      <div class="topbar">
+        <span class="page-ttl" id="tab-title">Overview</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="color:var(--text3);font-size:.75rem;" id="last-refresh">–</span>
+          <button class="btn-xs" onclick="refresh()"><i class="bi bi-arrow-clockwise"></i></button>
+        </div>
+      </div>
+
+      <div class="content" style="padding-bottom:56px;">
+        <!-- Setup banner (HTTPS warning) -->
+        <div id="setup-banner">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span id="setup-banner-text"></span>
+          <button class="btn-xs ms-auto" onclick="openApiModal()">Configure API</button>
+        </div>
+
+        <!-- ── OVERVIEW ── -->
+        <div id="tab-dashboard" class="tab-cnt active">
+          <div class="row g-3 mb-3">
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-label">CPU</div><div class="stat-val" id="s-cpu">–</div><div class="prog-bg"><div class="prog-fill g" id="b-cpu" style="width:0%"></div></div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-label">RAM</div><div class="stat-val" id="s-ram">–</div><div class="stat-sub" id="s-ram2">–</div><div class="prog-bg"><div class="prog-fill y" id="b-ram" style="width:0%"></div></div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-label">Disk</div><div class="stat-val" id="s-disk">–</div><div class="stat-sub" id="s-disk2">–</div><div class="prog-bg"><div class="prog-fill r" id="b-disk" style="width:0%"></div></div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-card"><div class="stat-label">Uptime</div><div class="stat-val" style="font-size:1.1rem;padding-top:8px;" id="s-uptime">–</div><div class="stat-sub" id="s-host">–</div></div></div>
+          </div>
+          <div class="section-hd"><h5>Your Active Processes</h5><button class="btn-xs" onclick="showUploadModal()"><i class="bi bi-plus"></i> Upload &amp; Run</button></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Status</th><th>Uptime</th><th>File</th><th>Actions</th></tr></thead><tbody id="dash-proc-body"></tbody></table></div>
+        </div>
+
+        <!-- ── MY PROCESSES ── -->
+        <div id="tab-my-procs" class="tab-cnt">
+          <div class="section-hd"><h5>My Processes</h5><button class="btn-xs" onclick="showUploadModal()"><i class="bi bi-plus"></i> Upload &amp; Run</button></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Status</th><th>PID</th><th>Uptime</th><th>File</th><th>Actions</th></tr></thead><tbody id="my-proc-body"></tbody></table></div>
+        </div>
+
+        <!-- ── MY FILES ── -->
+        <div id="tab-my-files" class="tab-cnt">
+          <div class="section-hd"><h5>Hosted Files</h5><button class="btn-xs" onclick="showUploadModal()"><i class="bi bi-upload"></i> Upload</button></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Filename</th><th>Size</th><th>Modified</th><th>Actions</th></tr></thead><tbody id="files-body"></tbody></table></div>
+        </div>
+
+        <!-- ── ALL PROCESSES (admin) ── -->
+        <div id="tab-all-procs" class="tab-cnt">
+          <div class="section-hd"><h5>All Processes</h5></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Status</th><th>PID</th><th>Uptime</th><th>File</th><th>Owner</th><th>Actions</th></tr></thead><tbody id="all-proc-body"></tbody></table></div>
+        </div>
+
+        <!-- ── COMPUTER CONTROL (admin) ── -->
+        <div id="tab-control" class="tab-cnt">
+          <div class="row g-3">
+            <div class="col-lg-8">
+              <div class="card-dark">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <h6 style="margin:0;font-weight:600;">Live Screen</h6>
+                  <div style="display:flex;gap:6px;">
+                    <button class="btn-xs" onclick="toggleLive()" id="live-btn"><i class="bi bi-pause-fill"></i> Pause</button>
+                    <button class="btn-xs" onclick="snapNow()"><i class="bi bi-camera"></i> Snap</button>
+                  </div>
+                </div>
+                <div id="ss-wrap">
+                  <img id="ss-img" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450' fill='none'><rect width='800' height='450' fill='%2321262d'/><text x='400' y='225' fill='%238b949e' font-size='18' text-anchor='middle' dominant-baseline='middle'>Screenshot loading…</text></svg>" alt="Screenshot"/>
+                </div>
+                <small style="color:var(--text3);display:block;margin-top:6px;" id="ss-ts">Click anywhere on the screenshot to click there on the computer</small>
+              </div>
+            </div>
+            <div class="col-lg-4" style="display:flex;flex-direction:column;gap:12px;">
+              <div class="card-dark">
+                <h6 class="mb-2" style="color:var(--text3);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">QUICK KEYS</h6>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                  <button class="btn-xs" onclick="sk('enter')">↵ Enter</button>
+                  <button class="btn-xs" onclick="sk('escape')">Esc</button>
+                  <button class="btn-xs" onclick="sk('ctrl+c')">Ctrl+C</button>
+                  <button class="btn-xs" onclick="sk('ctrl+v')">Ctrl+V</button>
+                  <button class="btn-xs" onclick="sk('alt+tab')">Alt+Tab</button>
+                  <button class="btn-xs" onclick="sk('win')">⊞ Win</button>
+                  <button class="btn-xs" onclick="sk('ctrl+alt+delete')">Ctrl+Alt+Del</button>
+                  <button class="btn-xs" onclick="sk('ctrl+z')">Ctrl+Z</button>
+                </div>
+              </div>
+              <div class="card-dark">
+                <h6 class="mb-2" style="color:var(--text3);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">TYPE TEXT</h6>
+                <textarea id="type-txt" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.8rem;resize:none;" rows="3" placeholder="Type here…"></textarea>
+                <button class="btn-xs mt-2" style="width:100%;" onclick="typeText()"><i class="bi bi-keyboard"></i> Send</button>
+              </div>
+              <div class="card-dark">
+                <h6 class="mb-2" style="color:var(--text3);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;">CUSTOM KEY</h6>
+                <input id="key-in" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;font-size:.8rem;" placeholder="e.g. ctrl+alt+t"/>
+                <button class="btn-xs mt-2" style="width:100%;" onclick="pressKey()"><i class="bi bi-command"></i> Press</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TRANSACTIONS (admin) ── -->
+        <div id="tab-transactions" class="tab-cnt">
+          <div class="section-hd"><h5>Transactions</h5></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>ID</th><th>User</th><th>Coin</th><th>Amount</th><th>USD</th><th>Status</th><th>TX Hash</th><th>Expires</th></tr></thead><tbody id="tx-body"></tbody></table></div>
+        </div>
+
+        <!-- ── USERS (admin) ── -->
+        <div id="tab-users" class="tab-cnt">
+          <div class="section-hd"><h5>Users</h5></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Username</th><th>UID</th><th>Access</th><th>Admin</th><th>Slots</th><th>Uses</th><th>Joined</th></tr></thead><tbody id="users-body"></tbody></table></div>
+        </div>
+
+        <!-- ── SCAN LOG (admin) ── -->
+        <div id="tab-scanlog" class="tab-cnt">
+          <div class="section-hd"><h5>Security Scan Log</h5></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Time</th><th>User</th><th>File</th><th>Verdict</th><th>Score</th><th>Action</th><th>By</th></tr></thead><tbody id="scan-body"></tbody></table></div>
+        </div>
+
+        <!-- ── SETTINGS (admin) ── -->
+        <div id="tab-settings" class="tab-cnt">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card-dark">
+                <h6 class="mb-3" style="color:var(--text3);font-size:.75rem;text-transform:uppercase;">BOT STATUS</h6>
+                <input id="bot-status-in" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:9px 12px;margin-bottom:10px;font-size:.875rem;" placeholder="e.g. Hosting bots 24/7 💪"/>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn-xs-g" onclick="setBotStatus()"><i class="bi bi-check2"></i> Set</button>
+                  <button class="btn-xs" onclick="clearBotStatus()"><i class="bi bi-x"></i> Clear</button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card-dark">
+                <h6 class="mb-3" style="color:var(--text3);font-size:.75rem;text-transform:uppercase;">ANNOUNCEMENT</h6>
+                <select id="ann-ch" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:9px 12px;margin-bottom:8px;font-size:.875rem;"><option value="">Select channel…</option></select>
+                <textarea id="ann-msg" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:9px 12px;font-size:.875rem;resize:none;" rows="3" placeholder="Announcement…"></textarea>
+                <button class="btn-xs-g mt-2" onclick="sendAnn()"><i class="bi bi-megaphone"></i> Send</button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card-dark">
+                <h6 class="mb-3" style="color:var(--text3);font-size:.75rem;text-transform:uppercase;">MAINTENANCE MODE</h6>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div>
+                    <div style="font-size:.875rem;font-weight:600;">Website Maintenance</div>
+                    <div style="color:var(--text2);font-size:.78rem;">Blocks all API calls with a 503 page</div>
+                  </div>
+                  <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="maint-tog" onchange="toggleMaint(this)"/></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card-dark">
+                <h6 class="mb-3" style="color:var(--text3);font-size:.75rem;text-transform:uppercase;">API CONNECTION</h6>
+                <div style="font-size:.83rem;color:var(--text2);margin-bottom:10px;">Configure where the dashboard looks for the bot API.</div>
+                <button class="btn-xs" onclick="openApiModal()"><i class="bi bi-plug"></i> Configure API URL</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════ MODALS ════ -->
+<!-- Upload modal -->
+<div class="modal fade modal-dark" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Upload &amp; Run Script</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <p style="color:var(--text2);font-size:.84rem;">Only <code>.py</code> files. File is scanned before running.</p>
+      <input type="file" id="up-file" accept=".py" class="form-dark mt-2 mb-3" style="padding:6px;"/>
+      <div id="up-status" style="font-size:.84rem;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-xs" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn-full btn-accent" style="width:auto;padding:8px 20px;" onclick="doUpload()">
+        <span id="up-sp" class="spinner-border spinner-border-sm d-none me-1"></span>
+        <i class="bi bi-play-fill"></i> Upload &amp; Run
+      </button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Log modal -->
+<div class="modal fade modal-dark" id="logModal" tabindex="-1">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="log-ttl">Logs</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body"><div class="log-box" id="log-box">Loading…</div></div>
+    <div class="modal-footer">
+      <button class="btn-xs" data-bs-dismiss="modal">Close</button>
+      <button class="btn-xs" onclick="reloadLog()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- API URL modal -->
+<div class="modal fade modal-dark" id="apiModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">🔌 API Connection</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <p style="color:var(--text2);font-size:.875rem;margin-bottom:12px;">Enter the URL where your HostBot API is running (port 8080 by default).</p>
+      <input id="api-url-in" class="form-dark mb-3" placeholder="http://your-server-ip:8080"/>
+      <div id="api-modal-warn" style="background:rgba(210,153,34,.1);border:1px solid var(--yellow);border-radius:7px;padding:10px;font-size:.8rem;color:var(--yellow);display:none;">
+        <strong>⚠️ HTTPS → HTTP (Mixed Content)</strong><br/>
+        This dashboard is served over HTTPS but your API URL is HTTP. Browsers block this.<br/>
+        Fix: Put your bot behind a reverse proxy with SSL (nginx + Let's Encrypt),<br/>
+        or host the dashboard on HTTP (not Vercel HTTPS).
+      </div>
+      <div id="api-modal-ok" style="background:rgba(63,185,80,.1);border:1px solid var(--green);border-radius:7px;padding:10px;font-size:.8rem;color:var(--green);display:none;">
+        ✅ Connection OK
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-xs" data-bs-dismiss="modal">Cancel</button>
+      <button class="btn-xs" onclick="testApiConn()"><i class="bi bi-wifi"></i> Test</button>
+      <button class="btn-full btn-accent" style="width:auto;padding:8px 18px;" onclick="saveApiUrl()">Save</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- Toast container -->
+<div id="tc"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+//  GLOBALS
+// ═══════════════════════════════════════════════════════
+let S       = JSON.parse(localStorage.getItem('hb_sess') || 'null');
+let API     = localStorage.getItem('hb_api')  || 'http://localhost:8080';
+let selCoin = null;
+let payId   = null;
+let pollT   = null;
+let liveOn  = true;
+let liveT   = null;
+let curLog  = null;
+let dashT   = null;
+let curTab  = 'dashboard';
+
+document.getElementById('api-url-in').value = API;
+
+// ═══════════════════════════════════════════════════════
+//  ROUTER  (hash-based)
+// ═══════════════════════════════════════════════════════
+const PAGES = ['landing','pay','login'];
+function goto(name){
+  if(name==='dashboard'||name==='admin'){
+    if(!S){ goto('login'); return; }
+    showApp(name==='admin');
+    return;
+  }
+  PAGES.forEach(p=>{
+    const el=document.getElementById('page-'+p);
+    if(el) el.classList.remove('active');
+  });
+  document.getElementById('app-page').classList.remove('active');
+  document.getElementById('app-page').style.display='none';
+  const t=document.getElementById('page-'+name);
+  if(t){ t.classList.add('active'); }
+  history.replaceState(null,'','#/'+name);
+  if(name==='landing') window.scrollTo(0,0);
+}
+
+function showApp(goAdmin){
+  PAGES.forEach(p=>{
+    const el=document.getElementById('page-'+p);
+    if(el) el.classList.remove('active');
+  });
+  document.getElementById('app-page').style.display='flex';
+  document.getElementById('app-page').classList.add('active');
+  history.replaceState(null,'','#/dashboard');
+  document.getElementById('sb-uname').textContent=S.username;
+  document.getElementById('sb-av').textContent=(S.username[0]||'?').toUpperCase();
+  document.getElementById('sb-role').textContent=S.is_admin?'Admin':'User';
+  if(S.is_admin){
+    document.getElementById('admin-sb-sect').style.display='';
+    document.querySelectorAll('.admin-only').forEach(e=>e.classList.remove('d-none'));
+    loadChannels();
+  }
+  checkApiSetup();
+  refresh();
+  clearInterval(dashT);
+  dashT=setInterval(refresh,10000);
+  if(goAdmin) setTimeout(()=>switchTab('control'),100);
+}
+
+function initRoute(){
+  const h=location.hash.replace('#/','');
+  if(S && (h==='dashboard'||h==='admin'||h==='')){
+    showApp(h==='admin'); return;
+  }
+  if(h==='pay'){ goto('pay'); return; }
+  if(h==='login'){ goto('login'); return; }
+  goto('landing');
+}
+
+window.addEventListener('hashchange',()=>initRoute());
+initRoute();
+
+// ═══════════════════════════════════════════════════════
+//  API HELPER
+// ═══════════════════════════════════════════════════════
+async function api(path,opts={}){
+  const hdrs={...(opts.headers||{})};
+  if(!(opts.body instanceof FormData)) hdrs['Content-Type']='application/json';
+  if(S?.token) hdrs['Authorization']='Bearer '+S.token;
+  const res=await fetch(API+path,{...opts,headers:hdrs});
+  if(!res.ok){
+    const t=await res.text().catch(()=>res.statusText);
+    throw new Error(t||res.statusText);
+  }
+  const ct=res.headers.get('content-type')||'';
+  return ct.includes('json')?res.json():res;
+}
+
+async function checkApiSetup(){
+  const banner=document.getElementById('setup-banner');
+  const isHttps=location.protocol==='https:';
+  const apiIsHttp=API.startsWith('http://');
+  if(isHttps && apiIsHttp){
+    document.getElementById('setup-banner-text').textContent=
+      '⚠️ Mixed content blocked: dashboard is on HTTPS but your API is HTTP. Click "Configure API" to fix.';
+    banner.style.display='flex';
+    return;
+  }
+  try{
+    await fetch(API+'/api/health',{signal:AbortSignal.timeout(3000)});
+    banner.style.display='none';
+  } catch(e){
+    document.getElementById('setup-banner-text').textContent=
+      '⚠️ Cannot reach bot API at '+API+'. Is the bot running?';
+    banner.style.display='flex';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  API URL CONFIG
+// ═══════════════════════════════════════════════════════
+function openApiModal(){
+  document.getElementById('api-url-in').value=API;
+  document.getElementById('api-modal-warn').style.display='none';
+  document.getElementById('api-modal-ok').style.display='none';
+  new bootstrap.Modal(document.getElementById('apiModal')).show();
+}
+async function testApiConn(){
+  const url=document.getElementById('api-url-in').value.trim().replace(/\/$/,'');
+  const isHttps=location.protocol==='https:';
+  if(isHttps && url.startsWith('http://')){
+    document.getElementById('api-modal-warn').style.display='';
+    document.getElementById('api-modal-ok').style.display='none';
+    return;
+  }
+  try{
+    await fetch(url+'/api/health',{signal:AbortSignal.timeout(4000)});
+    document.getElementById('api-modal-ok').style.display='';
+    document.getElementById('api-modal-warn').style.display='none';
+  } catch(e){
+    document.getElementById('api-modal-warn').textContent='❌ Could not connect: '+e.message;
+    document.getElementById('api-modal-warn').style.display='';
+    document.getElementById('api-modal-ok').style.display='none';
+  }
+}
+function saveApiUrl(){
+  API=document.getElementById('api-url-in').value.trim().replace(/\/$/,'');
+  localStorage.setItem('hb_api',API);
+  bootstrap.Modal.getInstance(document.getElementById('apiModal'))?.hide();
+  toast('API URL saved','ok');
+  checkApiSetup();
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+function toast(msg,type='ok'){
+  const el=document.createElement('div');
+  el.className=`t-item ${type}`;
+  el.innerHTML=`<i class="bi bi-${type==='ok'?'check-circle':'x-circle'}" style="color:var(--${type==='ok'?'green':'red'})"></i>${e(msg)}`;
+  document.getElementById('tc').appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ═══════════════════════════════════════════════════════
+//  PAYMENT FLOW
+// ═══════════════════════════════════════════════════════
+function selectCoin(c){
+  selCoin=c;
+  document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('coin-'+c.toLowerCase()).classList.add('selected');
+}
+
+async function initPayment(){
+  if(!selCoin){ toast('Pick BTC or LTC','err'); return; }
+  const btn=document.querySelector('#pay-s1 .btn-full');
+  const sp=document.getElementById('init-sp');
+  btn.disabled=true; sp.classList.remove('d-none');
+  document.getElementById('pay-coin-err').style.display='none';
+  try{
+    const d=await api('/api/payment/initiate',{method:'POST',body:JSON.stringify({coin:selCoin})});
+    payId=d.payment_id;
+    // Populate step 2
+    document.getElementById('pay-coin-title').textContent=(selCoin==='BTC'?'Bitcoin':'Litecoin')+' Payment — $'+d.amount_usd.toFixed(2)+'/week';
+    document.getElementById('pay-coin-badge').textContent=selCoin;
+    document.getElementById('pay-coin-badge').className='badge '+(selCoin==='BTC'?'b-y':'b-b');
+    document.getElementById('pay-addr').textContent=d.address;
+    document.getElementById('pay-amount-coin').textContent=d.amount_coin.toFixed(8)+' '+selCoin;
+    document.getElementById('pay-amount-usd').textContent='≈ $'+d.amount_usd.toFixed(2)+' USD · 1 '+selCoin+' = $'+d.rate.toLocaleString();
+    document.getElementById('pay-qr').src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(d.address)+'&color=000000&bgcolor=ffffff';
+    // Show step 2
+    document.getElementById('pay-s1').style.display='none';
+    document.getElementById('pay-s2').style.display='';
+    document.getElementById('ps1').className='pay-step done';
+    document.getElementById('ps2').className='pay-step active';
+    // Start polling
+    startPollPayment();
+  } catch(ex){
+    document.getElementById('pay-coin-err').textContent=ex.message;
+    document.getElementById('pay-coin-err').style.display='';
+  } finally{ btn.disabled=false; sp.classList.add('d-none'); }
+}
+
+function startPollPayment(){
+  clearInterval(pollT);
+  pollT=setInterval(pollPayment,15000);  // every 15s in UI; bot checks every 2min on-chain
+  pollPayment();
+}
+
+async function pollPayment(){
+  if(!payId) return;
+  try{
+    const d=await api('/api/payment/'+payId+'/status');
+    if(d.status==='paid'){
+      clearInterval(pollT);
+      document.getElementById('pay-dot')&&(document.getElementById('poll-dot').className='poll-dot ok');
+      document.getElementById('poll-label').textContent='✅ Payment confirmed!';
+      document.getElementById('pay-txhash').textContent='TX: '+(d.tx_hash||'(confirmed)');
+      // Step 3
+      setTimeout(()=>{
+        document.getElementById('pay-s2').style.display='none';
+        document.getElementById('pay-s3').style.display='';
+        document.getElementById('ps2').className='pay-step done';
+        document.getElementById('ps3').className='pay-step active done';
+      },800);
+    } else if(d.status==='expired'){
+      clearInterval(pollT);
+      document.getElementById('poll-label').textContent='⏰ Payment window expired. Start a new payment.';
+    } else {
+      document.getElementById('poll-label').textContent='Waiting for on-chain confirmation… (bot checks every 2 min)';
+    }
+  } catch(ex){ /* silent */ }
+}
+
+function copyAddr(){
+  const addr=document.getElementById('pay-addr').textContent;
+  navigator.clipboard.writeText(addr).then(()=>toast('Address copied!','ok'));
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOGIN FLOW
+// ═══════════════════════════════════════════════════════
+async function requestCode(){
+  const id=document.getElementById('login-discord-id').value.trim();
+  if(!id){ toast('Enter your Discord ID or username','err'); return; }
+  const sp=document.getElementById('rc-sp');
+  const btn=document.querySelector('#login-a .btn-full');
+  btn.disabled=true; sp.classList.remove('d-none');
+  document.getElementById('rc-err').style.display='none';
+  try{
+    await api('/api/auth/request-code',{method:'POST',body:JSON.stringify({discord_id:id})});
+    document.getElementById('login-b-sub').textContent=
+      'Check your Discord for a private channel with a 6-digit code (or a DM if the bot couldn\'t create a channel).';
+    document.getElementById('login-a').style.display='none';
+    document.getElementById('login-b').style.display='';
+    document.getElementById('login-code').focus();
+  } catch(ex){
+    document.getElementById('rc-err').textContent=ex.message;
+    document.getElementById('rc-err').style.display='';
+  } finally{ btn.disabled=false; sp.classList.add('d-none'); }
+}
+
+async function verifyCode(){
+  const code=document.getElementById('login-code').value.trim();
+  if(code.length!==6){ toast('Enter all 6 digits','err'); return; }
+  const sp=document.getElementById('vc-sp');
+  const btn=document.querySelector('#login-b .btn-full');
+  btn.disabled=true; sp.classList.remove('d-none');
+  document.getElementById('vc-err').style.display='none';
+  try{
+    const d=await api('/api/auth/verify',{method:'POST',body:JSON.stringify({code})});
+    S=d; localStorage.setItem('hb_sess',JSON.stringify(d));
+    toast('Welcome, '+d.username+'!','ok');
+    showApp(false);
+  } catch(ex){
+    document.getElementById('vc-err').textContent=ex.message;
+    document.getElementById('vc-err').style.display='';
+  } finally{ btn.disabled=false; sp.classList.add('d-none'); }
+}
+
+function showLoginA(){
+  document.getElementById('login-a').style.display='';
+  document.getElementById('login-b').style.display='none';
+  document.getElementById('login-code').value='';
+}
+
+function logout(){
+  S=null; localStorage.removeItem('hb_sess');
+  clearInterval(dashT); clearInterval(liveT); clearInterval(pollT);
+  document.getElementById('app-page').style.display='none';
+  document.getElementById('app-page').classList.remove('active');
+  goto('landing');
+}
+
+// ═══════════════════════════════════════════════════════
+//  DASHBOARD REFRESH
+// ═══════════════════════════════════════════════════════
+async function refresh(){
+  document.getElementById('last-refresh').textContent='Updated '+new Date().toLocaleTimeString();
+  try{
+    const sys=await api('/api/system');
+    const cv=v=>v.toFixed(1)+'%';
+    set('s-cpu',cv(sys.cpu)); barPct('b-cpu',sys.cpu);
+    set('s-ram',cv(sys.ram)); set('s-ram2',sys.ram_used+' / '+sys.ram_total+' MB'); barPct('b-ram',sys.ram);
+    set('s-disk',cv(sys.disk)); set('s-disk2',sys.disk_used+' / '+sys.disk_total+' MB'); barPct('b-disk',sys.disk);
+    set('s-uptime',sys.uptime); set('s-host',sys.hostname+' · '+sys.platform);
+    renderDashProcs(sys.processes);
+  } catch(e2){ /* silent */ }
+  if(curTab==='my-procs'||curTab==='all-procs') await loadProcs();
+  if(curTab==='my-files') await loadFiles();
+  if(curTab==='transactions') await loadTx();
+  if(curTab==='users') await loadUsers();
+  if(curTab==='scanlog') await loadScanLog();
+}
+
+function set(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; }
+function barPct(id,v){
+  const el=document.getElementById(id); if(!el) return;
+  el.style.width=Math.min(100,v)+'%';
+  el.className='prog-fill '+(v>80?'r':v>50?'y':'g');
+}
+
+// ═══════════════════════════════════════════════════════
+//  TAB SWITCHER
+// ═══════════════════════════════════════════════════════
+const tabTitles={
+  dashboard:'Overview','my-procs':'My Processes','my-files':'My Files',
+  'all-procs':'All Processes',control:'Computer Control',
+  transactions:'Transactions',users:'Users',scanlog:'Security Scan Log',settings:'Settings'
+};
+function switchTab(name){
+  curTab=name;
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll(`[data-tab="${name}"]`).forEach(el=>el.classList.add('active'));
+  document.querySelectorAll('.tab-cnt').forEach(el=>el.classList.remove('active'));
+  const t=document.getElementById('tab-'+name); if(t) t.classList.add('active');
+  set('tab-title',tabTitles[name]||name);
+  history.replaceState(null,'','#/'+(name==='dashboard'?'dashboard':name));
+  if(name==='control'){ startLive(); }
+  else { stopLive(); }
+  // Load on first open
+  if(name==='my-procs'||name==='all-procs') loadProcs();
+  if(name==='my-files') loadFiles();
+  if(name==='transactions') loadTx();
+  if(name==='users') loadUsers();
+  if(name==='scanlog') loadScanLog();
+}
+
+// ═══════════════════════════════════════════════════════
+//  PROCESSES
+// ═══════════════════════════════════════════════════════
+function renderDashProcs(procs){
+  const tb=document.getElementById('dash-proc-body');
+  if(!procs||!procs.length){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;">No processes running</td></tr>'; return; }
+  const mine=S?procs.filter(p=>!S.is_admin?p.uid===S.uid:true):procs;
+  tb.innerHTML=mine.map(p=>`<tr>
+    <td><strong>${e(p.name)}</strong></td>
+    <td>${statusBadge(p)}</td>
+    <td>${e(p.uptime)}</td>
+    <td style="color:var(--text3);font-size:.8rem;">${e(p.file)}</td>
+    <td>${procBtns(p.name)}</td>
+  </tr>`).join('');
+}
+
+async function loadProcs(){
+  try{
+    const procs=await api('/api/processes');
+    const admin=curTab==='all-procs';
+    const tb=document.getElementById(admin?'all-proc-body':'my-proc-body');
+    if(!procs.length){ tb.innerHTML=`<tr><td colspan="${admin?7:6}" style="text-align:center;color:var(--text3);padding:20px;">No processes running</td></tr>`; return; }
+    tb.innerHTML=procs.map(p=>`<tr>
+      <td><strong>${e(p.name)}</strong></td>
+      <td>${statusBadge(p)}</td>
+      <td style="font-family:monospace;color:var(--text3);">${p.pid}</td>
+      <td>${e(p.uptime)}</td>
+      <td style="color:var(--text3);font-size:.78rem;">${e(p.file)}</td>
+      ${admin?`<td style="color:var(--text2);font-size:.8rem;">${e(p.author)}</td>`:''}
+      <td>${procBtns(p.name)}</td>
+    </tr>`).join('');
+  } catch(ex){ toast(ex.message,'err'); }
+}
+
+function statusBadge(p){
+  if(p.paused) return '<span class="badge b-y">⏸ Paused</span>';
+  return p.running?'<span class="badge b-g">🟢 Running</span>':'<span class="badge b-r">🔴 Stopped</span>';
+}
+function procBtns(name){
+  return `<div style="display:flex;gap:4px;">
+    <button class="btn-xs" onclick="showLog('${name}')"><i class="bi bi-terminal"></i></button>
+    <button class="btn-xs-g" onclick="procAct('${name}','restart')"><i class="bi bi-arrow-clockwise"></i></button>
+    <button class="btn-xs-r" onclick="procAct('${name}','stop')"><i class="bi bi-stop-fill"></i></button>
+  </div>`;
+}
+
+async function procAct(name,action){
+  try{
+    await api(`/api/processes/${encodeURIComponent(name)}/${action}`,{method:'POST'});
+    toast(action+' → '+name,'ok');
+    await loadProcs();
+  } catch(ex){ toast(ex.message,'err'); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOGS
+// ═══════════════════════════════════════════════════════
+async function showLog(name){
+  curLog=name;
+  set('log-ttl','Logs: '+name);
+  set('log-box','Loading…');
+  new bootstrap.Modal(document.getElementById('logModal')).show();
+  await reloadLog();
+}
+async function reloadLog(){
+  if(!curLog) return;
+  try{
+    const d=await api(`/api/processes/${encodeURIComponent(curLog)}/logs`);
+    const b=document.getElementById('log-box');
+    b.textContent=d.log||'(no output yet)';
+    b.scrollTop=b.scrollHeight;
+  } catch(ex){ set('log-box','Error: '+ex.message); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  FILES
+// ═══════════════════════════════════════════════════════
+async function loadFiles(){
+  try{
+    const files=await api('/api/files');
+    const tb=document.getElementById('files-body');
+    if(!files.length){ tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px;">No files yet</td></tr>'; return; }
+    tb.innerHTML=files.map(f=>`<tr>
+      <td><i class="bi bi-filetype-py" style="color:#3776ab;margin-right:6px;"></i><strong>${e(f.name)}</strong></td>
+      <td style="color:var(--text3);">${fmtSize(f.size)}</td>
+      <td style="color:var(--text3);font-size:.8rem;">${e(f.modified)}</td>
+      <td><button class="btn-xs-g" onclick="runFile('${e(f.name)}')"><i class="bi bi-play-fill"></i> Run</button></td>
+    </tr>`).join('');
+  } catch(ex){ toast(ex.message,'err'); }
+}
+
+async function runFile(name){
+  const n=name.replace('.py','');
+  try{ await api(`/api/processes/${encodeURIComponent(n)}/restart`,{method:'POST'}); toast('Running '+name,'ok'); switchTab('my-procs'); }
+  catch(ex){ toast(ex.message,'err'); }
+}
+
+function fmtSize(b){ if(b<1024) return b+'B'; if(b<1048576) return (b/1024).toFixed(1)+'KB'; return (b/1048576).toFixed(1)+'MB'; }
+
+// ═══════════════════════════════════════════════════════
+//  UPLOAD
+// ═══════════════════════════════════════════════════════
+function showUploadModal(){
+  document.getElementById('up-file').value='';
+  document.getElementById('up-status').innerHTML='';
+  new bootstrap.Modal(document.getElementById('uploadModal')).show();
+}
+
+async function doUpload(){
+  const f=document.getElementById('up-file').files[0];
+  if(!f){ toast('Select a .py file','err'); return; }
+  if(!f.name.endsWith('.py')){ toast('Only .py files allowed','err'); return; }
+  const sp=document.getElementById('up-sp');
+  sp.classList.remove('d-none');
+  document.getElementById('up-status').innerHTML='<span style="color:var(--yellow);">🛡️ Scanning…</span>';
+  const fd=new FormData(); fd.append('file',f,f.name);
+  try{
+    const res=await fetch(API+'/api/host',{method:'POST',headers:{'Authorization':'Bearer '+S.token},body:fd});
+    if(!res.ok){ throw new Error(await res.text()); }
+    const d=await res.json();
+    document.getElementById('up-status').innerHTML=`<span style="color:var(--green);">✅ Running as <strong>${e(d.name)}</strong> (PID ${d.pid}) — Scan: ${e(d.scan)}</span>`;
+    toast('Uploaded and running!','ok');
+    setTimeout(()=>{ bootstrap.Modal.getInstance(document.getElementById('uploadModal'))?.hide(); switchTab('my-procs'); },1500);
+  } catch(ex){
+    document.getElementById('up-status').innerHTML=`<span style="color:var(--red);">❌ ${e(ex.message)}</span>`;
+    toast(ex.message,'err');
+  } finally{ sp.classList.add('d-none'); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCREENSHOT + CONTROL
+// ═══════════════════════════════════════════════════════
+function startLive(){
+  liveOn=true;
+  snapNow();
+  liveT=setInterval(snapNow,4000);
+}
+function stopLive(){ clearInterval(liveT); liveT=null; }
+
+async function snapNow(){
+  try{
+    const res=await fetch(API+'/api/screenshot',{headers:{'Authorization':'Bearer '+S.token}});
+    if(!res.ok) return;
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const img=document.getElementById('ss-img');
+    if(img._prev) URL.revokeObjectURL(img._prev);
+    img._prev=url; img.src=url;
+    img.onclick=handleClick;
+    set('ss-ts','Last snap: '+new Date().toLocaleTimeString()+' · Click to click there on the computer');
+  } catch(ex){ /* silent */ }
+}
+
+function toggleLive(){
+  liveOn=!liveOn;
+  const btn=document.getElementById('live-btn');
+  if(liveOn){ startLive(); btn.innerHTML='<i class="bi bi-pause-fill"></i> Pause'; }
+  else { stopLive(); btn.innerHTML='<i class="bi bi-play-fill"></i> Resume'; }
+}
+
+async function handleClick(evt){
+  const img=document.getElementById('ss-img');
+  const rect=img.getBoundingClientRect();
+  const x=Math.round((evt.clientX-rect.left)*(img.naturalWidth/rect.width));
+  const y=Math.round((evt.clientY-rect.top)*(img.naturalHeight/rect.height));
+  // Visual ripple
+  const rip=document.createElement('div');
+  rip.className='click-ripple';
+  rip.style.cssText=`left:${evt.clientX-rect.left}px;top:${evt.clientY-rect.top}px;`;
+  document.getElementById('ss-wrap').appendChild(rip);
+  setTimeout(()=>rip.remove(),600);
+  try{ await api('/api/control',{method:'POST',body:JSON.stringify({action:'click',x,y})}); setTimeout(snapNow,600); }
+  catch(ex){ toast('Click failed: '+ex.message,'err'); }
+}
+
+async function sk(key){
+  try{ await api('/api/control',{method:'POST',body:JSON.stringify({action:'key',key})}); setTimeout(snapNow,400); }
+  catch(ex){ toast(ex.message,'err'); }
+}
+async function typeText(){
+  const t=document.getElementById('type-txt').value;
+  if(!t) return;
+  try{ await api('/api/control',{method:'POST',body:JSON.stringify({action:'type',text:t})}); toast('Typed text','ok'); document.getElementById('type-txt').value=''; }
+  catch(ex){ toast(ex.message,'err'); }
+}
+async function pressKey(){
+  const k=document.getElementById('key-in').value.trim();
+  if(!k) return;
+  await sk(k);
+  document.getElementById('key-in').value='';
+}
+
+// ═══════════════════════════════════════════════════════
+//  ADMIN DATA TABLES
+// ═══════════════════════════════════════════════════════
+async function loadTx(){
+  try{
+    const rows=await api('/api/transactions');
+    const tb=document.getElementById('tx-body');
+    if(!rows.length){ tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px;">No transactions</td></tr>'; return; }
+    tb.innerHTML=rows.map(r=>`<tr>
+      <td style="color:var(--text3);">${r.id}</td>
+      <td>${e(r.username)}</td>
+      <td><span class="badge ${r.coin==='BTC'?'b-y':'b-b'}">${e(r.coin)}</span></td>
+      <td style="font-family:monospace;">${Number(r.expected_coin||0).toFixed(6)}</td>
+      <td>$${Number(r.expected_usd||0).toFixed(2)}</td>
+      <td><span class="badge ${r.status==='paid'?'b-g':r.status==='pending'?'b-y':'b-r'}">${e(r.status)}</span></td>
+      <td style="font-family:monospace;font-size:.75rem;color:var(--text3);">${r.tx_hash?(r.tx_hash.slice(0,14)+'…'):'–'}</td>
+      <td style="color:var(--text3);font-size:.78rem;">${(r.expires_at||'').slice(0,16)||'–'}</td>
+    </tr>`).join('');
+  } catch(ex){ toast(ex.message,'err'); }
+}
+
+async function loadUsers(){
+  try{
+    const rows=await api('/api/users');
+    const tb=document.getElementById('users-body');
+    if(!rows.length){ tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px;">No users</td></tr>'; return; }
+    tb.innerHTML=rows.map(r=>`<tr>
+      <td><strong>${e(r.username)}</strong></td>
+      <td style="font-family:monospace;font-size:.74rem;color:var(--text3);">${e(r.uid)}</td>
+      <td>${r.whitelisted?'<span class="badge b-g">Active</span>':'<span class="badge b-r">None</span>'}</td>
+      <td>${r.is_admin?'<span class="badge b-p">Admin</span>':'–'}</td>
+      <td>${r.slots}</td>
+      <td>${r.uses}</td>
+      <td style="color:var(--text3);font-size:.78rem;">${(r.joined_at||'').slice(0,10)||'–'}</td>
+    </tr>`).join('');
+  } catch(ex){ toast(ex.message,'err'); }
+}
+
+async function loadScanLog(){
+  try{
+    const rows=await api('/api/scan-logs');
+    const tb=document.getElementById('scan-body');
+    if(!rows.length){ tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px;">No scans</td></tr>'; return; }
+    tb.innerHTML=rows.map(r=>`<tr>
+      <td style="font-size:.78rem;color:var(--text3);">${(r.created_at||'').slice(0,16)}</td>
+      <td>${e(r.username)}</td>
+      <td style="font-family:monospace;font-size:.78rem;">${e((r.filepath||'').split(/[\\/]/).pop())}</td>
+      <td><span class="badge ${r.verdict==='CLEAN'?'b-g':r.verdict==='SUSPICIOUS'?'b-y':'b-r'}">${e(r.verdict)}</span></td>
+      <td>${r.score}</td>
+      <td><span class="badge ${r.action==='APPROVED'?'b-g':r.action==='AUTO_BLOCKED'||r.action==='BANNED'||r.action==='DENIED'?'b-r':'b-b'}">${e(r.action)}</span></td>
+      <td style="color:var(--text3);font-size:.78rem;">${e(r.reviewed_by||'–')}</td>
+    </tr>`).join('');
+  } catch(ex){ toast(ex.message,'err'); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SETTINGS
+// ═══════════════════════════════════════════════════════
+async function setBotStatus(){
+  const t=document.getElementById('bot-status-in').value.trim();
+  try{ await api('/api/bot/status',{method:'POST',body:JSON.stringify({text:t})}); toast('Status set','ok'); }
+  catch(ex){ toast(ex.message,'err'); }
+}
+async function clearBotStatus(){
+  try{ await api('/api/bot/status',{method:'POST',body:JSON.stringify({text:''})}); document.getElementById('bot-status-in').value=''; toast('Status cleared','ok'); }
+  catch(ex){ toast(ex.message,'err'); }
+}
+
+async function loadChannels(){
+  try{
+    const chs=await api('/api/channels');
+    const sel=document.getElementById('ann-ch');
+    sel.innerHTML='<option value="">Select channel…</option>';
+    chs.forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=`#${c.name} (${c.guild})`; sel.appendChild(o); });
+  } catch(ex){ /* silent */ }
+}
+
+async function sendAnn(){
+  const id=document.getElementById('ann-ch').value;
+  const msg=document.getElementById('ann-msg').value.trim();
+  if(!id||!msg){ toast('Select channel and write a message','err'); return; }
+  try{ await api('/api/announce',{method:'POST',body:JSON.stringify({channel_id:id,message:msg})}); toast('Announced!','ok'); document.getElementById('ann-msg').value=''; }
+  catch(ex){ toast(ex.message,'err'); }
+}
+
+async function toggleMaint(el){
+  try{ await api('/api/maintenance',{method:'POST',body:JSON.stringify({on:el.checked})}); toast('Maintenance '+(el.checked?'ON':'OFF'),'ok'); }
+  catch(ex){ el.checked=!el.checked; toast(ex.message,'err'); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  ENTER KEY SHORTCUTS
+// ═══════════════════════════════════════════════════════
+document.getElementById('login-discord-id').addEventListener('keydown',ev=>{ if(ev.key==='Enter') requestCode(); });
+document.getElementById('login-code').addEventListener('keydown',ev=>{ if(ev.key==='Enter') verifyCode(); });
+document.getElementById('key-in').addEventListener('keydown',ev=>{ if(ev.key==='Enter') pressKey(); });
+</script>
+</body>
+</html>

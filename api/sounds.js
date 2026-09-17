@@ -1,33 +1,35 @@
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const q = String(req.query?.q || 'funny sound').slice(0, 120);
-  const page = Math.max(1, Math.min(20, Number(req.query?.page || 1)));
-  const limit = Math.max(1, Math.min(50, Number(req.query?.limit || 48)));
+  const q = String(req.query?.q || 'sound effect').slice(0, 120);
+  const page = Math.max(1, Math.min(12, Number(req.query?.page || 1)));
+  const pageSize = 24;
 
-  const url = new URL('https://sfxmint.com/api/v1/search');
+  const url = new URL('https://api.openverse.org/v1/audio/');
   url.searchParams.set('q', q);
-  url.searchParams.set('limit', String(limit));
+  url.searchParams.set('page', String(page));
+  url.searchParams.set('page_size', String(pageSize));
+  url.searchParams.set('mature', 'false');
 
   try {
-    const r = await fetch(url);
+    const r = await fetch(url, { headers: { 'User-Agent': 'SoundBox/1.0' } });
     const data = await r.json();
-    if (!r.ok) return res.status(r.status).json({ error: data.error || data.message || 'Sound API request failed' });
+    if (!r.ok) return res.status(r.status).json({ error: data.detail || data.error || 'Audio search failed' });
 
-    const raw = Array.isArray(data) ? data : Array.isArray(data.results) ? data.results : [];
-    const results = raw.map((s, i) => ({
-      id: s.slug || s.id || `${q}-${page}-${i}`,
-      name: s.title || s.name || `Sound ${i + 1}`,
-      creator: s.creator || s.author || 'SFXMint',
-      license: s.license || 'CC0 1.0',
-      duration: Number(s.duration_ms || s.duration || 0) / (s.duration_ms ? 1000 : 1),
-      preview: s.mp3_url || s.download_url || s.preview_url || s.url,
-      source: s.page_url || `https://sfxmint.com/sounds/${encodeURIComponent(s.slug || '')}`
+    const results = (Array.isArray(data.results) ? data.results : []).map((s, i) => ({
+      id: s.identifier || s.id || `${page}-${i}`,
+      name: s.title || 'Untitled recording',
+      creator: s.creator || 'Unknown creator',
+      license: s.license ? `${s.license}${s.license_version ? ' ' + s.license_version : ''}` : 'Open license',
+      duration: Number(s.duration || 0) / 1000,
+      preview: s.url,
+      source: s.foreign_landing_url || s.detail_url || 'https://openverse.org/',
+      provider: s.provider || s.source || 'Openverse'
     })).filter(s => s.preview);
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    return res.status(200).json({ count: results.length, page, results });
+    return res.status(200).json({ count: data.result_count || results.length, page, results });
   } catch (e) {
-    return res.status(500).json({ error: 'Could not reach the sound library.' });
+    return res.status(500).json({ error: 'Could not reach the open audio library.' });
   }
 }

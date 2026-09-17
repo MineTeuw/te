@@ -2,8 +2,8 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const q = String(req.query?.q || 'sound effect').slice(0, 120);
-  const page = Math.max(1, Math.min(12, Number(req.query?.page || 1)));
-  const pageSize = 24;
+  const page = Math.max(1, Math.min(100, Number(req.query?.page || 1)));
+  const pageSize = 20;
 
   const url = new URL('https://api.openverse.org/v1/audio/');
   url.searchParams.set('q', q);
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     })).filter(s => s.preview);
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    return res.status(200).json({ count: data.result_count || results.length, page, results });
+    return res.status(200).json({ count: data.result_count || results.length, page, results, hasMore: Boolean(data.next) });
   } catch (e) {
     return res.status(500).json({ error: 'Could not reach the open audio library.' });
   }
